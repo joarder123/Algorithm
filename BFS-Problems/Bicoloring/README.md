@@ -1,58 +1,37 @@
-# 🌟 Bicoloring (BFS) Problem Analysis
+Bicoloring (BFS) — Problem Analysis
+🎯 Problem: Graph Bicoloring
 
-## সমস্যা: গ্রাফ বাইকালারিং
+Given an undirected graph, determine whether it can be colored using only two colors (e.g., black and white) such that no two adjacent nodes share the same color.
 
-গ্রাফকে কি দুটি রঙে রঙ করা যায়? আমাদের দেখতে হবে, একটি গ্রাফকে মাত্র দুটি রঙ (যেমন: সাদা এবং কালো) দিয়ে রঙ করা সম্ভব কি না, যেন কোনো দুটি পাশাপাশি বা Adjacent নোডের রঙ এক না হয়।
+🔑 Key Concept — Bipartite Graph
 
-### মূল ধারণা (Bipartite Graph)
+A graph that can be colored using two colors without conflict is called a Bipartite Graph.
+In such graphs, vertices can be divided into two disjoint sets (Set A & Set B), where every edge connects a node from Set A to a node in Set B.
 
-একটি গ্রাফকে যদি দুটি রঙে রঙ করা যায়, তবে সেই গ্রাফটিকে **"বাইপার্টাইট গ্রাফ" (Bipartite Graph)** বলা হয়। বাইপার্টাইট গ্রাফের নোডগুলোকে দুটি আলাদা ডিসজয়েন্ট সেট (Set A, Set B) এ ভাগ করা যায়, যেখানে সমস্ত এজ Set A থেকে Set B-তে যায়।
+🚫 When Is Bicoloring Not Possible?
 
-### 🚫 বাইকালারিং কখন সম্ভব নয়?
+A graph cannot be bicolored if it contains an:
 
-**শর্ত:** যদি কোনো গ্রাফে **"বিজোড় দৈর্ঘ্যের চক্র" (Odd-Length Cycle)** থাকে, তবে সেই গ্রাফ বাইকালারিং সম্ভব নয়।
-*উদাহরণ: একটি ত্রিভুজ (৩-চক্র) বাইকালারিং সম্ভব নয়, কারণ প্রথম নোডকে একটি রঙ দিলে, তৃতীয় নোডকে প্রথম নোডের উল্টো রঙ দিতে হয়। কিন্তু তৃতীয় নোডটি আবার প্রথম নোডের সাথে যুক্ত থাকায় দ্বন্দ্ব সৃষ্টি করে।*
+✅ Odd-Length Cycle
 
----
+Example:
+A triangle (cycle of length 3) cannot be bicolored.
+If you assign alternate colors, the third node eventually conflicts with the first because both are adjacent.
 
-## 🔍 সমাধান অ্যালগরিদম: ব্রেডথ-ফার্স্ট সার্চ (BFS)
+So, odd cycles ⇒ NOT bipartite ⇒ NOT bicolorable.
 
-এই সমস্যাটি সমাধানের জন্য আমরা গ্রাফ ট্রাভার্সাল অ্যালগরিদম **BFS** ব্যবহার করব। BFS ব্যবহার করে নোডগুলোকে পর্যায়ক্রমে দুটি রঙ (০ এবং ১) দিতে থাকব এবং একই রঙের দুটি নোড সংলগ্ন হচ্ছে কি না, তা পরীক্ষা করব।
+🔍 Solution Strategy — Breadth-First Search (BFS)
 
-### অ্যালগরিদমের ধাপসমূহ:
+We check bicoloring possibility using BFS traversal while assigning alternate colors to neighboring nodes.
 
-1.  **শুরু:** সব নোডকে Uncolored (`-1`) হিসেবে চিহ্নিত করা হয়।
-2.  **BFS শুরু:** একটি Queue ব্যবহার করে নোড ০ থেকে শুরু করা হয় এবং তাকে রঙ `0` দেওয়া হয়।
-3.  **Traversal:** Queue থেকে একটি নোড `u` বের করা হয়। `u`-এর প্রতিটি প্রতিবেশী `v`-কে তার **বিপরীত রঙ** (`1 - color[u]`) দেওয়ার চেষ্টা করা হয়।
-4.  **দ্বন্দ্ব পরীক্ষা (Conflict Check):** যদি কোনো প্রতিবেশী `v` আগে থেকেই রঙিন থাকে এবং তার রঙ `u`-এর রঙের **সমান** হয় (`color[v] == color[u]`), তবে একটি Odd Cycle পাওয়া গেছে এবং গ্রাফটি **NOT BICOLORABLE**।
-5.  যদি BFS সফলভাবে শেষ হয়, তবে গ্রাফটি **BICOLORABLE**।
+✅ Algorithm Steps
 
----
+Initialize all nodes as uncolored (-1).
 
-## 💻 সিউডোকোড (Pseudocode)
+Start BFS from node 0 and assign color 0.
 
-```pseudocode
-FUNCTION isBicolorable(n, adjList):
-    
-    DECLARE colors[n]
-    FOR i FROM 0 TO n-1:
-        colors[i] = -1  // -1: Uncolored
-    DECLARE queue
+For each visited node u, assign its neighbors the opposite color (1 - color[u]).
 
-    colors[0] = 0  // Start node gets Color 0
-    queue.push(0)
+If any neighbor already has the same color, a conflict occurs → graph is NOT bicolorable.
 
-    WHILE queue is not empty:
-        u = queue.pop()
-        neighborColor = 1 - colors[u]
-
-        FOR each neighbor v in adjList[u]:
-            
-            IF colors[v] == -1:
-                colors[v] = neighborColor
-                queue.push(v)        
-            
-            ELSE IF colors[v] == colors[u]:
-                RETURN false // Conflict detected
-
-    RETURN true
+If BFS finishes without conflicts → graph is BICOLORABLE.
